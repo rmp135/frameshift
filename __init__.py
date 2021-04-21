@@ -9,41 +9,55 @@ bl_info = {
 
 
 import bpy
-from bpy.types import Operator, PropertyGroup
+from bpy.types import Operator, PropertyGroup, Panel, Scene
 
-
+# Props
 class FSProps(PropertyGroup):
-    frame_count: bpy.props.IntProperty(name="Frame Count", description="Number of frames to shift by.", default=1, min=1)
-    skip_insert: bpy.props.BoolProperty(name='Skip Insert', description="Do not insert keyframes, only move existing ones.", default=False)
-    initial_keyframe_only: bpy.props.BoolProperty(name='Start Keyframe Only', description="Only insert a start keyframe Do not insert keyframes, only move existing ones.", default=False)
+    frame_count: bpy.props.IntProperty(name="Frame Count", description="Number of frames to shift by", default=1, min=0)
+    skip_insert: bpy.props.BoolProperty(name='Skip Insert', description="Do not insert keyframes, only move existing ones", default=False)
+    initial_keyframe_only: bpy.props.BoolProperty(name='Initial Keyframe Only', description="Only insert the initial keyframe", default=False)
 
-class FrameShiftPanel(bpy.types.Panel):
+# Panels
+class SharedPanel(Panel):
+    def draw(self, context):
+        props = context.scene.fs_props
+        layout = self.layout
+
+        row = layout.row()
+        row.prop(props, "frame_count")
+
+        row = layout.row()
+        row.prop(props, "skip_insert")
+
+        if not props.skip_insert:
+            row = layout.row()
+            row.prop(props, "initial_keyframe_only")
+            row.enabled = not props.skip_insert
+
+        row = layout.row()
+        row.operator("fshift.shift", text="Shift")
+
+class FrameShiftDopeSheetPanel(SharedPanel):
     bl_label = "FrameShift"
     bl_idname = "DOPESHEET_PT_frameshift_panel"
     bl_space_type = 'DOPESHEET_EDITOR'
     bl_region_type = 'UI'
 
-    def draw(self, context):
-        access = context.scene.fs_props
-        layout = self.layout
-        obj = context.object
 
-        row = layout.row()
-        row.prop(access, "frame_count")
+class FrameShiftFCurvesPanel(SharedPanel):
+    bl_label = "FrameShift"
+    bl_idname = "GRAPH_PT_frameshift_panel"
+    bl_space_type = 'GRAPH_EDITOR'
+    bl_region_type = 'UI'
 
-        row = layout.row()
-        row.prop(access, "skip_insert")
-
-        row = layout.row()
-        row.operator("fshift.shift", text="Shift")
-
+# Operators
 class ShiftOp(bpy.types.Operator):
     bl_idname = 'fshift.shift'
     bl_label = 'Insert'
     bl_options = {'INTERNAL'}
     
     def execute(self, context): 
-        access = context.scene.fs_props
+        props = context.scene.fs_props
         objs = bpy.context.selected_objects
 
         for obj in objs:
@@ -53,26 +67,31 @@ class ShiftOp(bpy.types.Operator):
             for fc in fcurves:
                 for key in fc.keyframe_points:
                     if key.co[0] > bpy.context.scene.frame_current:
-                        key.co[0] = key.co[0] + access.frame_count
+                        key.co[0] = key.co[0] + props.frame_count
                         fc.update()
-            if not access.skip_insert:
+            if not props.skip_insert:
                 for fc in fcurves:
                     obj.keyframe_insert(data_path=fc.data_path, options={'INSERTKEY_AVAILABLE'})
-                    obj.keyframe_insert(data_path=fc.data_path, frame=bpy.context.scene.frame_current+access.frame_count, options={'INSERTKEY_AVAILABLE'})
+                    if not props.initial_keyframe_only:
+                        obj.keyframe_insert(data_path=fc.data_path, frame=bpy.context.scene.frame_current+props.frame_count, options={'INSERTKEY_AVAILABLE'})
         return {'FINISHED'}
 
-def register():
-    bpy.utils.register_class(ShiftOp)
-    bpy.utils.register_class(FrameShiftPanel)
-    bpy.utils.register_class(FSProps)
+classes = [
+    FSProps,
+    ShiftOp,
+    FrameShiftDopeSheetPanel,
+    FrameShiftFCurvesPanel
+]
 
-    bpy.types.Scene.fs_props = bpy.props.PointerProperty(type=FSProps)
+def register():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    Scene.fs_props = bpy.props.PointerProperty(type=FSProps)
 
 def unregister():
-    bpy.utils.unregister_class(FSProps)
-    bpy.utils.unregister_class(FrameShiftPanel)
-    bpy.utils.unregister_class(ShiftOp)
-
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
 
 if __name__ == "__main__":
     register()
