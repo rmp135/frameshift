@@ -110,7 +110,7 @@ class RepeatOp(bpy.types.Operator):
             # Move future frames
             for obj in [o for o in bpy.context.scene.objects if o.animation_data is not None]:
                 for fc in obj.animation_data.action.fcurves:
-                    for key in fc.keyframe_points:
+                    for key in reversed(fc.keyframe_points):
                         if key.co[0] >  last_frame:
                             key.co[0] = key.co[0] + last_frame - earliest_frame + props.repeat_offset
                             fc.update()
@@ -175,7 +175,7 @@ class ShiftOp(Operator):
         for obj in [o for o in objs if o.animation_data is not None]:
             fcurves = obj.animation_data.action.fcurves
             for fc in fcurves:
-                for key in fc.keyframe_points:
+                for key in reversed(fc.keyframe_points):
                     if key.co[0] > bpy.context.scene.frame_current:
                         key.co[0] = key.co[0] + props.frame_count
                         fc.update()
