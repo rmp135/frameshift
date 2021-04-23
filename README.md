@@ -15,23 +15,33 @@ In the Dope Sheet, Timeline and F-Curve views a new side panel item will be avai
 
 ![FrameShiftPanel](./images/gui.png)
 
-Select the objects you would like the shift. 
+### Shift
 
-By default, clicking "Shift" will insert a keyframe at the current location, and a duplicate keyframe the set number of frames forward, essentially freezing the animation in place for editing. 
+Moves keyframes of the selected object that are after the cursor position forward by a number of frames.
 
-This behaviour can be changed with the following options.
+- Frame Count - Moves subsequent frames forward by this number of frames.
+- Insert Keyframes At - Where to insert (if any) keyframes.
+  - Start and End - At the cursor position and at end of the frame shift.
+  - Start - At the cursor position only.
+  - None - Do not insert keyframes, only move existing ones.
+- Shift - Performs the shift operation.
 
-**Frame Count**
+### Repeat
 
-The number of frames to shift the animation by.
+Repeats the selected number of keyframes after one another, shifting future keyframes to make room.
 
-**Skip Insert**
+- Repeat Offset - The number of frames to space apart the repeats.
+- Repeat Count - Number of times to repeat by.
+- Repeat - Performs the repeat operation.
 
-Skips keyframe insertion entirely and just moves the existing keyframes.
+### Merge
 
-**Initial Keyframe Only**
+Merges the selected keyframes. Useful for aligning multiple object animations to a set position. This is essentially the same operation as scaling the frames by 0.
 
-Inserts the initial keyframes only, skipping the ending keyframes.
+- First - Merges at the earliest selected keyframe.
+- Center - Merges at the center point of selected keyframes.
+- Last  - Merges at the latest selected keyframe.
+- Cusor - Merges at the current cursor position.
 
 ## Considerations
 
