@@ -1,10 +1,11 @@
 # FrameShift
 
-Blender addon to aid inserting keyframes in the middle of an existing animation.
+Blender addon to aid keyframe manipulation in the middle of an existing animation.
 
 ## Installation
 
-- Click Code -> Download ZIP
+- [Click here to go to the latest](https://github.com/rmp135/frameshift/releases/latest).
+- Click **Source Code (zip)**
 - Open Blender
   - Edit -> Preferences -> Install... and select the downloaded zip file.
   - Tick the box to enable.
