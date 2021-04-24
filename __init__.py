@@ -1,7 +1,7 @@
 bl_info = {
     "name": "FrameShift",
     "author": "Ryan Poole",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (2, 92, 0),
     "description": "Keyframe shifting tools",
     "category": "Animation"
