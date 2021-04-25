@@ -132,7 +132,7 @@ class MergeOp(Operator):
     def execute(self, context):
         selected_keys = []
 
-        for obj in [o for o in bpy.context.scene.objects if o.animation_data is not None]:
+        for obj in [o for o in bpy.context.selected_objects if o.animation_data is not None and o.animation_data.action is not None]:
             fcurves = obj.animation_data.action.fcurves
             for fc in fcurves:
                 for key in fc.keyframe_points:
